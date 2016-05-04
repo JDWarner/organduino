@@ -24,8 +24,8 @@
 // set pin numbers:
 const int keyPin = 2;          // pin connected to organ key
 const int ledPin =  LED_BUILTIN;  // the number of the LED pin
-bool keyState = false    // the key state, starts off
-bool keyRead = false     // input from digital pin
+bool keyState = false;    // the key state, starts off
+bool keyRead = false;     // input from digital pin
 
 
 // simple function to compare current state with new read
@@ -52,5 +52,5 @@ void loop() {
   keyRead = digitalRead(keyPin);
 
   // act on it
-  pinchange(keyRead, keyState, keyPin)
+  pinchange(keyRead, keyState, keyPin);
 }
