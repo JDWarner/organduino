@@ -31,7 +31,8 @@ bool keyRead = false;     // input from digital pin
 // simple function to compare current state with new read
 // if different, state and LED are updated
 // We're using input_pullup so the switch is active when LOW!
-void pinchange(bool value, bool state, int pin) {
+// Note: Internally changing `state` requires call-by-reference
+void pinchange(bool value, bool &state, int pin) {
   // Compare them - state records inverse of switch read
   if (value == state) { // Equal means a change
     // Update values as needed, if needed
