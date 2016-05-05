@@ -4,9 +4,6 @@
  Turns on and off a light emitting diode(LED) connected to digital
  pin 13, when pressing a key attached to pin 2.
 
- This is 
-
-
  The circuit:
  * LED built in to pin 13, connected to ground
  * Organ key attached to pin 2 from GND, through a 10k resistor
@@ -18,12 +15,12 @@
  by Tom Igoe
  modified 03 May 2016
  by @JDWarner
- */
+*/
 
 // constants won't change. They're used here to
 // set pin numbers:
-const int keyPin = 2;          // pin connected to organ key
-const int ledPin =  LED_BUILTIN;  // the number of the LED pin
+const int keyPin = 2;          // pin from organ key
+const int ledPin = LED_BUILTIN;  // LED pin
 bool keyState = false;    // the key state, starts off
 bool keyRead = false;     // input from digital pin
 
@@ -36,8 +33,8 @@ void pinchange(bool value, bool &state, int pin) {
   // Compare them - state records inverse of switch read
   if (value == state) { // Equal means a change
     // Update values as needed, if needed
-    value = not state;
-    digitalWrite(ledPin, value);
+    state = not value;
+    digitalWrite(ledPin, state);
   }
 }
 
