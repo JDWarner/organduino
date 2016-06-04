@@ -19,10 +19,13 @@
  created 2016 by @JDWarner
 */
 
+#define keyON 127
+#define keyOFF 0
+
 // constants won't change. They're used here to
-// set pin numbers:
-const int keyPins[] = {8, 9, 10};  // organ keys C, C#, D
-const int rankPins[] = {69, 68};   // drive wires for rank 0 (top) and 1 (bottom)
+// set pin numbers for first 2 octaves
+const int keyPins[] = {28, 26, 24, 22, 13, 12, 11, 10, 9, 8, 7, 6, 14, 15, 16, 17, 18, 19, 20, 21, 27, 25, 23, 29,};
+const int rankPins[] = {5, }; // drive wire(s) for ranks
 const int ledPin = LED_BUILTIN;  // LED pin
 /*
   Note for reference, the analog -> digital pin mappings for the Mega are:
@@ -45,30 +48,42 @@ const int ledPin = LED_BUILTIN;  // LED pin
 */
 
 // define how large some things are (matrix size)
-const int numKeys = 3;
-const int numRanks = 2;
+const int numKeys = 24;  // first 2 octaves
+const int numRanks = 1;  // only one rank for now
+
 const int midiNotes[numRanks][numKeys] = {
-  {9, 10, 11},
-  {9, 10, 11},
+  {36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,},
+  // {36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,},
 };
-const int midiChannels[numRanks] = {0, 1};
+const char midiNoteNames[numRanks][numKeys] = {
+  {'C2', 'C#2', 'D2', 'D#2', 'E2', 'F2', 'F#2', 'G2', 'G#2', 'A2', 'Bb2', 'B2', 'C3', 'C#3', 'D3', 'D#3', 'E3', 'F3', 'F#3', 'G3', 'G#3', 'A3', 'Bb3', 'B3',},
+  // {'C2', 'C#2', 'D2', 'D#2', 'E2', 'F2', 'F#2', 'G2', 'G#2', 'A2', 'Bb2', 'B2', 'C3', 'C#3', 'D3', 'D#3', 'E3', 'F3', 'F#3', 'G3', 'G#3', 'A3', 'Bb3', 'B3',},
+};
+const int midiChannels[numRanks] = {0x90, }; // 0x91, 0x92, 0x93, 0x94, 0x95};  // Five manuals plus pedals
 
 // State of all keys in a 2D multidimensional array
 bool keyStates[numRanks][numKeys] = {
-  {false,  false,  false},
-  {false,  false,  false},
+  {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,},
+  // {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,},
 };
 
-// Reading all pins for a particular loop
-bool keyReads[] = {false, false, false};
-int activeKeys = 0;
+
+// Convenience func to convert a boolean to the proper MIDI key velocity
+int stateMIDIvalue(bool state) {
+  if (state == true) {
+    return keyON;
+  }
+  else {
+    return keyOFF;
+  }
+}
 
 
 // simple function to compare current state with new read
 // if different, state and LED are updated
 // We're using input_pullup so the switch is active when LOW!
 // Note: Internally changing `state` requires call-by-reference
-void pinChange(bool value, bool &state, int pin) {
+void pinChange(bool value, bool &state, int key, int channel) {
   // Compare them - `state` records inverse of switch read
   if (value == state) { // Equal means a change
 
@@ -76,18 +91,18 @@ void pinChange(bool value, bool &state, int pin) {
     state = not value;
 
     // If there is a state change, send a MIDI event
-    // Serial.write();
-    // Serial.write();
-    // Serial.write();
+    Serial.write(channel);
+    Serial.write(stateMIDIvalue(state));
+    Serial.write(midiNoteNames[key]);
   }
 }
 
 
 // function to handle the loop over a given rank, updating states
-void rankPoll(int keyPins[numKeys], bool (&states)[numKeys]) {
+void rankPoll(const int keyPins[numKeys], bool (&states)[numKeys], int rank) {
   for(int key=0; key<numKeys; key++){
       // states[key] = not digitalRead(keyPins[key]);
-      pinChange(digitalRead(keyPins[key]), states[key], keyPins[key]);
+      pinChange(digitalRead(keyPins[key]), states[key], keyPins[key], midiChannels[rank]);
   }
 }
 
@@ -95,6 +110,8 @@ void rankPoll(int keyPins[numKeys], bool (&states)[numKeys]) {
 void setup() {
   // Start the Serial interface
   // Serial.begin(31280)  // Check baud
+
+  Serial.begin(31250);
 
   // initialize LED
   pinMode(ledPin, OUTPUT);
@@ -112,32 +129,20 @@ void setup() {
 
 
 void loop() {
-  // read the state of the key value:
+  // read each manual:
   for(int rank = 0; rank < numRanks; rank++){
+      // pull the drive pin for this manual to GND
       digitalWrite(rankPins[rank], LOW);
-      rankPoll(keyPins, keyStates[rank]);
+
+      // poll all keys, sending MIDI events if warranted
+      rankPoll(keyPins, keyStates[rank], rank);
+
+      // return the drive pin to +5V (off)
       digitalWrite(rankPins[rank], HIGH);
-   }
-
-  // light an LED if any key is pressed
-  activeKeys = 0;
-  for(int rank=0; rank<numRanks; rank++){
-      // shortcut loop if any key press found
-      if(activeKeys > 0){
-          break;
-      }
-      for(int key=0; key<numKeys; key++){
-          // if key pressed, turn on LED, record, and stop looking
-          if (keyStates[rank][key] == true) {
-            digitalWrite(ledPin, HIGH);
-            activeKeys++;
-            break;
-          }
-      }
   }
 
-  // LED off if no keys pressed
-  if(activeKeys == 0){
-      digitalWrite(ledPin, LOW);
-  }
+  // read the pedals
+  // digitalWrite(pedalPin, LOW);
+  // rankPoll(pedalPins, rank, keyStates[rank]);
+  // digitalWrite(pedalPin, HIGH);
 }
