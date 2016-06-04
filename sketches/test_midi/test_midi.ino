@@ -4,17 +4,9 @@
  Turns on a LED when at least one key is pressed.
 
  The circuit:
- * LED built in to pin 13, connected to ground
- * Key matrix: C, C#, and D from two keyboards
-   * C into digital pin 8
-   * C# into digital pin 9
-   * D into digital pin 10
-   * Internal pull-up resistors activated for all inputs
- * Keyboard 0 - pin 69 (analog 15)
- * Keyboard 1 - pin 68 (analog 14)
- * Six diodes allowing facing away from the inputs (allowing
-   current to be sunk, and hence inputs pulled down,
-   but open circuit otherwise)
+ * OrganDuino PCB shield, populated with diodes
+ * First two octaves (24 keys) soldered in
+ * Rank 0 jumper bridged on reverse side
 
  created 2016 by @JDWarner
 */
@@ -118,12 +110,12 @@ void setup() {
 
   // drive pins per rank
   for(int d=0; d<numRanks; d++){
-      pinMode(d, OUTPUT);
-      digitalWrite(d, HIGH);
+      pinMode(rankPins[d], OUTPUT);
+      digitalWrite(rankPins[d], HIGH);
   }
   // initialize the organ keys' pins as inputs
   for(int k=0; k<numKeys; k++){
-      pinMode(k, INPUT_PULLUP);
+      pinMode(keyPins[k], INPUT_PULLUP);
   }
 }
 
