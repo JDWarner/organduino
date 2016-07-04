@@ -1,12 +1,17 @@
+#include <midi_Defs.h>
+#include <midi_Namespace.h>
+#include <midi_Settings.h>
+#include <midi_Message.h>
+#include <MIDI.h>
 /*
- Test pseudo-MIDI commands from a 3x2 key matrix.
+ Test pseudo-MIDI commands from a 61-key keyboard.
 
  Turns on a LED when at least one key is pressed.
 
  The circuit:
- * OrganDuino PCB shield, populated with diodes
- * First two octaves (24 keys) soldered in
- * Rank 0 jumper bridged on reverse side
+ * Single OrganDuino 2.0 PCB shield, populated with diodes
+ * Solder jumper on back for rank 0 bridged
+ * 61-key organ manual soldered in with buss soldered to a Drive Pin thru-hole
 
  created 2016 by @JDWarner
 */
@@ -14,11 +19,12 @@
 #define keyON 127
 #define keyOFF 0
 
+MIDI_CREATE_DEFAULT_INSTANCE();
+
 // constants won't change. They're used here to
 // set pin numbers for first 2 octaves
-const int keyPins[] = {28, 26, 24, 22, 13, 12, 11, 10, 9, 8, 7, 6, 14, 15, 16, 17, 18, 19, 20, 21, 27, 25, 23, 29,};
+const int keyPins[] = {28, 26, 24, 22, 13, 12, 11, 10, 9, 8, 7, 6, 14, 15, 16, 17, 18, 19, 20, 21, 27, 25, 23, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 66, 65, 64, 63, 62, 61, 60, 59, 58, 57, 56, 55, 54, 52, 50, 48, 46, 44, 42, 40, 38, 36, 34, 32, 30,};
 const int rankPins[] = {5, }; // drive wire(s) for ranks
-const int ledPin = LED_BUILTIN;  // LED pin
 /*
   Note for reference, the analog -> digital pin mappings for the Mega are:
   A0 = 54
@@ -40,23 +46,15 @@ const int ledPin = LED_BUILTIN;  // LED pin
 */
 
 // define how large some things are (matrix size)
-const int numKeys = 24;  // first 2 octaves
-const int numRanks = 1;  // only one rank for now
+const int numKeys = 61;  // full organ manual, also length of keyPins and midiKeyNotes
+const int numRanks = 1;  // only one rank for now, also length of rankPins
 
-const int midiNotes[numRanks][numKeys] = {
-  {36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,},
-  // {36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,},
-};
-const char midiNoteNames[numRanks][numKeys] = {
-  {'C2', 'C#2', 'D2', 'D#2', 'E2', 'F2', 'F#2', 'G2', 'G#2', 'A2', 'Bb2', 'B2', 'C3', 'C#3', 'D3', 'D#3', 'E3', 'F3', 'F#3', 'G3', 'G#3', 'A3', 'Bb3', 'B3',},
-  // {'C2', 'C#2', 'D2', 'D#2', 'E2', 'F2', 'F#2', 'G2', 'G#2', 'A2', 'Bb2', 'B2', 'C3', 'C#3', 'D3', 'D#3', 'E3', 'F3', 'F#3', 'G3', 'G#3', 'A3', 'Bb3', 'B3',},
-};
-const int midiChannels[numRanks] = {0x90, }; // 0x91, 0x92, 0x93, 0x94, 0x95};  // Five manuals plus pedals
+const unsigned char midiKeyNotes[numKeys] = {36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, };
+const unsigned char midiChannels[numRanks] = {0x90, }; // 0x91, 0x92, 0x93, 0x94, 0x95};  // Five manuals plus pedals
 
 // State of all keys in a 2D multidimensional array
 bool keyStates[numRanks][numKeys] = {
-  {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,},
-  // {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,},
+  {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, },
 };
 
 
@@ -83,9 +81,7 @@ void pinChange(bool value, bool &state, int key, int channel) {
     state = not value;
 
     // If there is a state change, send a MIDI event
-    Serial.write(channel);
-    Serial.write(stateMIDIvalue(state));
-    Serial.write(midiNoteNames[key]);
+    MIDI.sendNoteOn(midiKeyNotes[key], stateMIDIvalue(state), channel);
   }
 }
 
@@ -101,12 +97,8 @@ void rankPoll(const int keyPins[numKeys], bool (&states)[numKeys], int rank) {
 
 void setup() {
   // Start the Serial interface
-  // Serial.begin(31280)  // Check baud
-
-  Serial.begin(31250);
-
-  // initialize LED
-  pinMode(ledPin, OUTPUT);
+  MIDI.begin(1);
+  Serial.begin(115200);
 
   // drive pins per rank
   for(int d=0; d<numRanks; d++){
@@ -135,6 +127,6 @@ void loop() {
 
   // read the pedals
   // digitalWrite(pedalPin, LOW);
-  // rankPoll(pedalPins, rank, keyStates[rank]);
+  // rankPoll(pedalPins, pedalStates, pedalrank);
   // digitalWrite(pedalPin, HIGH);
 }
