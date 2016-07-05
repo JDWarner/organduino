@@ -50,7 +50,7 @@ const int numKeys = 61;  // full organ manual, also length of keyPins and midiKe
 const int numRanks = 1;  // only one rank for now, also length of rankPins
 
 const unsigned char midiKeyNotes[numKeys] = {36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, };
-const unsigned char midiChannels[numRanks] = {0x90, }; // 0x91, 0x92, 0x93, 0x94, 0x95};  // Five manuals plus pedals
+const unsigned char midiChannels[numRanks] = {1, }; // 0x91, 0x92, 0x93, 0x94, 0x95};  // Five manuals plus pedals
 
 // State of all keys in a 2D multidimensional array
 bool keyStates[numRanks][numKeys] = {
@@ -90,7 +90,7 @@ void pinChange(bool value, bool &state, int key, int channel) {
 void rankPoll(const int keyPins[numKeys], bool (&states)[numKeys], int rank) {
   for(int key=0; key<numKeys; key++){
       // states[key] = not digitalRead(keyPins[key]);
-      pinChange(digitalRead(keyPins[key]), states[key], keyPins[key], midiChannels[rank]);
+      pinChange(digitalRead(keyPins[key]), states[key], key, midiChannels[rank]);
   }
 }
 
