@@ -16,6 +16,7 @@
 
 #define keyON 127
 #define keyOFF 0
+#define no false
 
 // Initialize MIDI
 MIDI_CREATE_DEFAULT_INSTANCE();
@@ -55,11 +56,11 @@ const int pedalChannel = numManuals;  // Zero-indexed so this is the final entry
 
 // State of all keys in a 2D multidimensional array
 bool keyStates[numManuals][numKeys] = {
-  {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, },
+  {no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, },
 };
 
 // State of all pedals in a 1D array
-bool pedalStates[numPedals] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, }
+bool pedalStates[numPedals] = {no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, }
 
 
 // Convenience func to convert a boolean to the proper MIDI key velocity
