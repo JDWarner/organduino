@@ -129,8 +129,8 @@ void setup() {
   }
 
   // pedal pin
-  pinMode(pedalPin, OUTPUT)
-  digitalWrite(pedalPin, HIGH)
+  pinMode(pedalPin, OUTPUT);
+  digitalWrite(pedalPin, HIGH);
 
   // initialize the organ keys' pins as inputs
   for(int k=0; k<numKeys; k++){
