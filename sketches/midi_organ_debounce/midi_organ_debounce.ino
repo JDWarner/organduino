@@ -100,7 +100,7 @@ void keyChange(bool value, bool &state, int key, int channel) {
 }
 
 // same function as above, but take into effect debounce.
-void keyChangeDebounce(bool value, bool &state, char &debounce, int key, int channel) {
+void keyChangeDebounce(bool value, bool &state, unsigned char &debounce, int key, int channel) {
   // Compare them - `state` records inverse of switch read
   if (value == state) { // Equal means a change
 
@@ -129,7 +129,7 @@ void keyPoll(bool (&states)[numKeys], int arraySize, int rank) {
 }
 
 // function to loop over pedals
-void pedalPoll(bool (&states)[numPedals], char (&debounce)[numPedals], int arraySize, int pedalMidiChannel) {
+void pedalPoll(bool (&states)[numPedals], unsigned char (&debounce)[numPedals], int arraySize, int pedalMidiChannel) {
   for(int key=0; key<arraySize; key++){
       // run through all switches, reading their values
       // pass results to keyChange which will dispatch a MIDI event if needed
