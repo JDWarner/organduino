@@ -4,17 +4,21 @@
 #include <midi_Message.h>
 #include <MIDI.h>
 /*
- Test serial-MIDI commands from a 61-key keyboard.
+ OrganDuino: serial-MIDI commands from multiple 61-key organ manuals and pedalboard.
 
  The circuit:
  * Up to five OrganDuino 2.0 PCB shields populated with diodes
  * 61-key organ manuals soldered in with buss soldered to a Drive Pin thru-hole
  * Solder jumpers on back for each manual properly set
- * 32-key AGO pedalboard soldered in to first
+ * 32-key AGO pedalboard soldered in to first 32 numbered keys on a separate OrganDuino 2.0 PCB
+ 
+ This version does not have any debouncing.  The state memory plus Hauptwerk's soft start 
+ MIDI patches make bouncing effectively inaudible for this hardware.
 
- created 2016 by @JDWarner
+ created 2016-2020 by @JDWarner and @mscross
 */
 
+// For convenience/conciseness
 #define keyON 127
 #define keyOFF 0
 #define no false
@@ -51,7 +55,7 @@ const int pedalPin = 69;  // drive wire for pedals is 69 with appropriate jumper
 // define how large some things are (matrix size)
 const int numKeys = 61;    // full organ manual, also length of keyPins and midiKeyNotes
 const int numPedals = 32;  // full AGO 32-key pedalboard
-const int numManuals = 5;  // number of manuals
+const int numManuals = 4;  // number of manuals (max 5)
 
 const unsigned char midiKeyNotes[numKeys] = {36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, };
 const unsigned char midiChannels[numManuals] = {1, 2, 3, 4, 5, };  // Five manuals in first 5 MIDI channels
