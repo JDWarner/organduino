@@ -20,6 +20,8 @@ You may start with one manual or pedalboard.  As your project/ambitions grow, ad
 
 # Populating the OrganDuino boards
 
+You will need:
+* OrganDuino PCB(s)
 * Stacking Arduino Mega2560 headers
 * One fast SMD diode for each key, which fits the board footprint; Vishay part number SD101CW-E3-08 verified working
 * A fine-tipped soldering iron
