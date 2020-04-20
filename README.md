@@ -51,5 +51,5 @@ A rudimentary debounce method is included as well, though for this project ultim
 Advanced Arduino users may note it is possible to blow away the Arduino bootloader chip and convert the USB output into a true MIDI over USB.  However, this is nearly irreversible without directly accessing the 6-pin ATMEL bootloader with a programmer and the OrganDuino 2.0 PCBs cover these pins without exposing them.  MIDI over serial works with imperceptible latency for 4 manuals and a pedalboard, so it is strongly recommended to keep the Arduino bootloader and use MIDI over serial with a bridge.
 
 # License
----------
+
 Most of the best MIDI organ conversions are done closed source. We've decided to use the Apache 2.0 license here, which allows closed use, but hope that any such users consider contributing improvements back to the community.
