@@ -30,13 +30,17 @@ You will need:
 
 ## Instructions
 
+The OrganDuino PCB enables each manual to be a "row" in a key matrix.  We'll be polling the position of key 1 on every manual via a single pin.  The only way to do this without getting spurious signal from adjacent manuals is a key matrix.  Every key requires its own diode.
+
+Diodes seem like little parts that are easy to deal with until you have space constraints on a board and need to populate 61 of them.  OrganDuino PCBs thus use surface mount diodes, relatively large ones.
+
 If you have never hand-soldered SMD components, these are a large footprint and very doable.  Solder the SMD components FIRST.  Heat only one pad for each diode with the fine-tipped soldering iron, and apply a dab of solder to the pad.  Do this for all diode mounts.  Then, using tweezers, get the component positioned next to the pad.  With your solder iron in one hand and SMD diode held by tweezers in the other, heat the pad with a small amount of solder on it and once the solder is molten, slide the diode pad into the molten solder.  Remove soldering iron, continue to hold in place with tweezers until the solder solidifies (a few seconds).  Place all diodes this way.  Now go back and solder the other lead of the diodes to the second, untouched pads.
 
 Double check the orientation of all SMD diodes.  The recommended part has rather poor marking to deliniate which side is which, and all diodes must be positioned properly.
 
 Once the board is completely populated with diodes, solder the stackable Mega2560 headers and finally bridge the appropriate solder jumper on the back side.  Each board must have a different solder jumper bridged.
 
-Map/verify all keys are working for the manual/pedalboard in question with a digital multimeter with continuity testing or similar.  Connect the buss to any of the 24 through-holes marked "Drive Pin(s)".  Once the switches are verified working, solder each manual key to the appropriate through-hold on the periphery of the OrganDuino 2.0 PCB.  Keys are soldered in chromatic order and grouped by octave for reference; if you look down at the top of the OrganDuino 2.0 PCB and orient it so you can read OrganDuino in the upper left corner, the first(bottom/lowest) key will be soldered at the far lower left.
+Map/verify all keys are working for the manual/pedalboard in question with a digital multimeter with continuity testing or similar.  Connect the buss to any of the 24 through-holes marked "Drive Pin(s)".  Once the switches are verified working, solder each manual key to the appropriate through-hole on the periphery of the OrganDuino 2.0 PCB.  Keys are soldered in chromatic order and grouped by octave for reference; if you look down at the top of the OrganDuino 2.0 PCB and orient it so you can read "OrganDuino" in the upper left corner, the first(bottom/lowest) key will be soldered at the far lower left.
 
 Stack this PCB with all others on the Arduino Mega 2560.
 
